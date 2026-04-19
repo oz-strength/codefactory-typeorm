@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   Generated,
+  JoinColumn,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -90,7 +91,22 @@ export class UserModel {
   @Generated('uuid')
   additionalId!: string;
 
-  @OneToOne(() => ProfileModel, (profile) => profile.user)
+  @OneToOne(() => ProfileModel, (profile) => profile.user, {
+    // user 데이터를 불러올 때 profile 데이터도 함께 불러오게 된다.
+    eager: true,
+    // user 데이터를 저장할 때 profile 데이터도 함께 저장하게 된다.
+    cascade: true,
+    // profile 데이터는 null이 될 수 있다.
+    nullable: true,
+    // onDelete는 "참조당하는 쪽이 삭제될 때" 동작 | FK는 보통 @JoinColumn() 있는 참조하는 쪽에 생성된다
+    // no action -> 아무것도 하지 않는다. (기본값)
+    // cascade -> 관계가 삭제됐을 때 연관된 엔티티도 함께 삭제한다.
+    // set null -> 관계가 삭제됐을 때 연관된 엔티티의 외래키 값을 null로 설정한다.
+    // set default -> 관계가 삭제됐을 때 연관된 엔티티의 외래키 값을 기본값으로 설정한다.
+    // restrict -> 관계가 삭제됐을 때 연관된 엔티티가 존재하면 삭제를 막는다.
+    onDelete: 'RESTRICT',
+  })
+  @JoinColumn()
   profile!: ProfileModel;
 
   @OneToMany(() => PostModel, (post) => post.author)
