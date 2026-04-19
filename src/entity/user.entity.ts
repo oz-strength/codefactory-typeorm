@@ -93,7 +93,7 @@ export class UserModel {
 
   @OneToOne(() => ProfileModel, (profile) => profile.user, {
     // user 데이터를 불러올 때 profile 데이터도 함께 불러오게 된다.
-    eager: true,
+    eager: false,
     // user 데이터를 저장할 때 profile 데이터도 함께 저장하게 된다.
     cascade: true,
     // profile 데이터는 null이 될 수 있다.

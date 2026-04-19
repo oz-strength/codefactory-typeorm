@@ -21,12 +21,63 @@ export class AppController {
 
   @Post('users')
   postUser() {
-    return this.userRepository.save({});
+    return this.userRepository.save({
+      email: 'test@test.com',
+    });
   }
 
   @Get('users')
   getHello() {
-    return this.userRepository.find({});
+    return this.userRepository.find({
+      // 어떤 프로퍼티를 선택할지
+      // 기본은 모든 프로퍼티를 선택한다.
+      // 만약 select를 정의하지 않으면 모든 프로퍼티가 선택된다.
+      // select를 정의하면 정의된 프로퍼티만 선택된다.
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        version: true,
+        profile: {
+          id: true,
+        },
+      },
+      // 필터링할 조건을 입력 - and 조건으로 작동한다.
+      // where: {
+      //   id: 1,
+      //   version: 1,
+      // },
+
+      // or 조건으로 작동하는 where
+      // where: [
+      //   {
+      //     id: 1,
+      //   },
+      //   {
+      //     version: 1,
+      //   },
+      // ],
+
+      where: {
+        // profile: {
+        //   id: 7,
+        // },
+      },
+
+      // 관계를 가져오는 방법
+      relations: {
+        profile: true,
+      },
+
+      // 오름차순, 내림차순
+      order: {
+        id: 'DESC',
+      },
+      // 처음 몇개를 제외할지
+      skip: 5,
+      // 처음 몇개를 가져올지
+      take: 5,
+    });
   }
 
   @Patch('users/:id')
@@ -39,6 +90,7 @@ export class AppController {
 
     return this.userRepository.save({
       ...user,
+      email: user?.email + '0',
     });
   }
 
@@ -100,7 +152,7 @@ export class AppController {
       posts: [post1],
     });
 
-    const post3 = await this.postRepository.save({
+    await this.postRepository.save({
       title: '태그가 있는 게시글3',
       tags: [tag1, tag2],
     });
