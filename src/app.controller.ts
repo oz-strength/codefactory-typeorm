@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { PostModel } from './entity/post.entity';
 import { ProfileModel } from './entity/profile.entity';
 import { TagModel } from './entity/tag.entity';
@@ -31,6 +31,9 @@ export class AppController {
   @Get('users')
   getHello() {
     return this.userRepository.find({
+      order: {
+        id: 'ASC',
+      },
       where: {
         // id가 1이 아닌 유저를 찾는다.
         // id: Not(1),
@@ -53,7 +56,7 @@ export class AppController {
         // 해당되는 여러개의 값
         // id: In([1, 10, 20, 30, 40, 50]),
         // id가 null인 유저를 찾는다.
-        id: IsNull(),
+        // id: IsNull(),
       },
       // 어떤 프로퍼티를 선택할지
       // 기본은 모든 프로퍼티를 선택한다.
@@ -120,6 +123,78 @@ export class AppController {
   @Delete('user/profile/:id')
   async deleteProfile(@Param('id') id: string) {
     await this.profileRepository.delete(+id);
+  }
+
+  @Post('sample')
+  async sample() {
+    // 모델에 해당하는 객체 생성 - 저장은 안함
+    // create: 단순히 메모리 상에서 엔티티 객체를 생성 (DB 작업 X)
+    // const user1 = this.userRepository.create({
+    //   email: 'test@test.com',
+    // });
+
+    // save: DB에 저장 후, 생성된 ID 등을 포함하여 반환 (DB 작업 O)
+    // const user2 = await this.userRepository.save({
+    //   email: 'test2@test.com',
+    // });
+
+    // preload의 동작 원리:
+    // 1. 전달된 객체 안에 있는 PK(여기서는 id: 101)를 가지고 DB에서 데이터를 먼저 조회합니다.
+    // 2. DB에 데이터가 있다면? -> 입력한 값(email)을 기존 데이터 위에 덮어쓴 '새로운 객체'를 메모리에 생성합니다.
+    // 3. DB에 데이터가 없다면? -> undefined를 반환합니다.
+    // 주의: preload는 DB 값을 "불러와서 수정본 객체를 만들기"만 할 뿐,
+    // 실제 DB에 반영(Update 쿼리 전송)하려면 반드시 다시 save()를 해줘야 합니다.
+    // const user3 = await this.userRepository.preload({
+    //   id: 101,
+    //   email: 'codefactory@test.com',
+    // });
+
+    // 삭제하기
+    // await this.userRepository.delete(
+    //   401, // id가 401인 유저를 삭제한다.
+    // );
+
+    // 값을 증가시킴
+    // await this.userRepository.increment({ id: 3 }, 'count', 2);
+
+    // 값을 감소시킴
+    // await this.userRepository.decrement({ id: 1 }, 'count', 2);
+
+    // count: 특정 조건에 해당하는 데이터의 개수를 센다.
+    // const count = await this.userRepository.count({
+    //   where: {
+    //     email: ILike('%0%'),
+    //   },
+    // });
+
+    // sum: 특정 조건에 해당하는 데이터의 합계를 구한다.
+    // const sum = await this.userRepository.sum('count', {
+    //   email: ILike('%0%'),
+    // });
+
+    // average: 특정 조건에 해당하는 데이터의 평균을 구한다.
+    // const average = await this.userRepository.average('count', {
+    //   id: LessThan(4),
+    // });
+
+    // 최솟값
+    // const min = await this.userRepository.minimum('count', {
+    //   id: LessThan(4),
+    // });
+
+    // 최댓값
+    // const max = await this.userRepository.maximum('count', {
+    //   id: LessThan(4),
+    // });
+
+    // const users = await this.userRepository.find({});
+
+    // const userOne = await this.userRepository.findOne({});
+
+    const usersAndCount = await this.userRepository.findAndCount({
+      take: 5,
+    });
+    return usersAndCount;
   }
 
   @Post('user/profile')
