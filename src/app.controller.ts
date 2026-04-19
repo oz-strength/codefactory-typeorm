@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PostModel } from './entity/post.entity';
 import { ProfileModel } from './entity/profile.entity';
+import { TagModel } from './entity/tag.entity';
 import { UserModel } from './entity/user.entity';
 
 @Controller()
@@ -14,6 +15,8 @@ export class AppController {
     private readonly profileRepository: Repository<ProfileModel>,
     @InjectRepository(PostModel)
     private readonly postRepository: Repository<PostModel>,
+    @InjectRepository(TagModel)
+    private readonly tagRepository: Repository<TagModel>,
   ) {}
 
   @Post('users')
@@ -69,5 +72,51 @@ export class AppController {
     });
 
     return user;
+  }
+
+  @Post('posts/tags')
+  async createPostAndTags() {
+    const post1 = await this.postRepository.save({
+      title: '태그가 있는 게시글1',
+    });
+
+    const post2 = await this.postRepository.save({
+      title: '태그가 있는 게시글2',
+    });
+
+    const tag1 = await this.tagRepository.save({
+      name: 'TypeScript',
+      posts: [post1, post2],
+    });
+
+    const tag2 = await this.tagRepository.save({
+      name: 'NestJS',
+      posts: [post1],
+    });
+
+    const post3 = await this.postRepository.save({
+      title: '태그가 있는 게시글3',
+      tags: [tag1, tag2],
+    });
+
+    return true;
+  }
+
+  @Get('posts')
+  getPosts() {
+    return this.postRepository.find({
+      relations: {
+        tags: true,
+      },
+    });
+  }
+
+  @Get('tags')
+  getTags() {
+    return this.tagRepository.find({
+      relations: {
+        posts: true,
+      },
+    });
   }
 }
