@@ -2,6 +2,13 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import {
+  AirplaneModel,
+  BookModel,
+  CarModel,
+  ComputerModel,
+  SingleBaseModel,
+} from './entity/inheritance.entity';
 import { StudentModel, TeacherModel } from './entity/person.entity';
 import { UserModel } from './entity/user.entity';
 
@@ -15,7 +22,16 @@ import { UserModel } from './entity/user.entity';
       username: 'postgres',
       password: 'postgres',
       database: 'typeormstudy',
-      entities: [UserModel, StudentModel, TeacherModel],
+      entities: [
+        UserModel,
+        StudentModel,
+        TeacherModel,
+        BookModel,
+        CarModel,
+        SingleBaseModel,
+        ComputerModel,
+        AirplaneModel,
+      ],
       synchronize: true,
     }),
   ],
